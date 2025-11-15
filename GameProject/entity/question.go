@@ -19,9 +19,9 @@ type PossibleAnswerChoice uint
 
 const (
 	PossibleAnswerA PossibleAnswerChoice = 1
-	PossibleAnswerB PossibleAnswerChoice = 1
-	PossibleAnswerC PossibleAnswerChoice = 1
-	PossibleAnswerD PossibleAnswerChoice = 1
+	PossibleAnswerB PossibleAnswerChoice = 2
+	PossibleAnswerC PossibleAnswerChoice = 3
+	PossibleAnswerD PossibleAnswerChoice = 4
 )
 
 type QuestionDifficulty uint

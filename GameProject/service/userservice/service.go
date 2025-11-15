@@ -2,57 +2,58 @@ package userservice
 
 import (
 	"fmt"
-	"game-application-new/GameProject/entity"
-	"game-application-new/GameProject/pkg/phonenumber"
+	"gameproject/entity"
+	"gameproject/pkg/phonenumber"
 )
 
 type repository interface {
-	IsPhoneNumberUnique(phoneNumber string) (bool, error)
 	Register(u entity.User) (entity.User, error)
+	IsPhoneNumberUnique(phoneNumber string) (bool, error)
+}
+type Service struct {
+	repository repository
 }
 
-type Service struct {
-	Repo repository
-}
-type RegisterRequest struct {
+type UserRegisterRequest struct {
 	Name  string
 	Phone string
 }
 
-type RegisterResponse struct {
+type UserRegisterResponse struct {
 	User entity.User
 }
 
-func (s Service) Register(request RegisterRequest) (RegisterResponse, error) {
+func (s Service) Register(request UserRegisterRequest) (UserRegisterResponse, error) {
 
 	if !phonenumber.IsVaild(request.Phone) {
-		return RegisterResponse{}, fmt.Errorf("phone number is not vaild")
+		return UserRegisterResponse{}, fmt.Errorf("phone number is invaild")
 	}
 
-	if isUnique, error := s.Repo.IsPhoneNumberUnique(request.Phone); error != nil || !isUnique {
-		if error != nil {
-			return RegisterResponse{}, fmt.Errorf("error happend", error)
-		}
+	if isUnique, error := s.repository.IsPhoneNumberUnique(request.Phone); error != nil || !isUnique {
 		if !isUnique {
-			return RegisterResponse{}, fmt.Errorf("phone number is not unique")
+			return UserRegisterResponse{}, fmt.Errorf("phone is not unique")
+		}
+		if error != nil {
+			return UserRegisterResponse{}, fmt.Errorf("error happend")
+
 		}
 	}
 
 	if len(request.Name) < 3 {
-		return RegisterResponse{}, fmt.Errorf("name should be more than 3 charachter")
+		return UserRegisterResponse{}, fmt.Errorf("name is invalid more than 3 charachter")
 
 	}
+
 	user := entity.User{
 		Name:        request.Name,
 		PhoneNumber: request.Phone,
 	}
 
-	createdUser, error := s.Repo.Register(user)
-
+	CreatedUser, error := s.repository.Register(user)
 	if error != nil {
-		return RegisterResponse{}, fmt.Errorf("there is an error in database, unexpected error", error)
+		return UserRegisterResponse{}, fmt.Errorf("there is error in create user")
 	}
 
-	return RegisterResponse{createdUser}, nil
+	return UserRegisterResponse{CreatedUser}, nil
 
 }
