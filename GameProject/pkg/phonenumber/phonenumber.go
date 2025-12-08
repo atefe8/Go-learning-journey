@@ -5,7 +5,7 @@ func IsVaild(phoneNumber string) bool {
 		return false
 	}
 
-	if phoneNumber[0:3] != "09" {
+	if phoneNumber[0:3] != "091" {
 		return false
 	}
 
