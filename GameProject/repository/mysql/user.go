@@ -6,23 +6,6 @@ import (
 	"gameproject/entity"
 )
 
-func (DB *MYSQLDB) IsPhoneNumberUnique(phoneNumber string) (bool, error) {
-
-	user := entity.User{}
-	row := DB.db.QueryRow(`select * from users where phone= ?`, phoneNumber)
-	error := row.Scan(&user.ID, &user.Name, &user.PhoneNumber, &user.Password, &user.CreatedAt)
-
-	if error != nil {
-		if error == sql.ErrNoRows {
-			return true, nil
-		}
-
-		return false, fmt.Errorf("there is error in checking phone number is unique %w", error)
-	}
-
-	return false, nil
-}
-
 func (DB *MYSQLDB) Register(user entity.User) (entity.User, error) {
 	result, error := DB.db.Exec(`insert into users (name, phone, password) value (?, ?, ?)`, user.Name, user.PhoneNumber, user.Password)
 	if error != nil {
@@ -35,12 +18,26 @@ func (DB *MYSQLDB) Register(user entity.User) (entity.User, error) {
 	return user, nil
 }
 
+func (DB *MYSQLDB) IsPhoneNumberUnique(phoneNumber string) (bool, error) {
+
+	user := entity.User{}
+	error := DB.ScanRows(&user, phoneNumber)
+
+	if error != nil {
+		if error == sql.ErrNoRows {
+			return true, nil
+		}
+
+		return false, fmt.Errorf("there is error in checking phone number is unique %w", error)
+	}
+
+	return false, nil
+}
+
 func (DB *MYSQLDB) GetUserByPhoneNumber(phoneNumber string) (entity.User, bool, error) {
 
 	user := entity.User{}
-	var createdAt []uint8
-	row := DB.db.QueryRow(`SELECT * FROM users WHERE phone =?`, phoneNumber)
-	error := row.Scan(&user.ID, &user.Name, &user.PhoneNumber, &user.Password, &createdAt)
+	error := DB.ScanRows(&user, phoneNumber)
 
 	if error != nil {
 		if error == sql.ErrNoRows {
@@ -51,5 +48,13 @@ func (DB *MYSQLDB) GetUserByPhoneNumber(phoneNumber string) (entity.User, bool, 
 	}
 
 	return user, true, nil
+
+}
+
+func (DB *MYSQLDB) ScanRows(user *entity.User, phoneNumber string) error {
+
+	var createdAt []uint8
+	row := DB.db.QueryRow(`SELECT * FROM users WHERE phone =?`, phoneNumber)
+	return row.Scan(&user.ID, &user.Name, &user.PhoneNumber, &user.Password, &createdAt)
 
 }
