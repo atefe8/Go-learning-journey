@@ -38,10 +38,10 @@ Create a struct for the expected request data:
     err := json.Unmarshal(data, &userLoginRequest)
 
 
-    Note (as a Laravel developer):
-    In Laravel, request inputs are automatically mapped and validated.
-    In Go, you should define a struct and manually unmarshal JSON into it.
-    It feels lower-level but gives more control.
+Note (as a Laravel developer):
+In Laravel, request inputs are automatically mapped and validated.
+In Go, you should define a struct and manually unmarshal JSON into it.
+It feels lower-level but gives more control.
 
 5. Error Handling
 
